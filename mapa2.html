@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Mi primera pagina con Leaflet</title>
+	<link rel="stylesheet" href="css/leaflet.css" />
+	<!-- Leaflet JavaScript local-->
+	<script src="js/leaflet.js"></script>
+	<!-- mapa zonas hidrologicas-->
+	<script src="data/zonasH.js "></script>
+	<!-- mapa zonas hidrologicas-->
+	<script src="data/estaciones.js "></script>
+
+	<script src="data/aeropuertos.js "></script>
+	<script src="data/aeropuertos2.js "></script>
+	<script src="data/lagos.js "></script>
+	<script src="data/lagos2.js "></script>
+	<script src="data/municipios.js "></script>
+	<script src="data/municipios2.js "></script>
+
+	<!-- Estilo de la pagina principal -->
+	<style>
+		body {
+			padding: 0;
+			margin: 0
+		}
+
+		html,
+		body,
+		#mapa {
+			height: 100%;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="mapa"></div>
+	<!-- Codigo de javascript embebido -->
+	<script>
+		//inicializar mapa en cordenadas en ul div mapa
+		var mapa1 = L.map('mapa', {
+			center: [-16.290154, -63.588653],
+			zoom: 6
+		});
+		//fondo para el mapa (L.tileLayer)
+		var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+		var google = L.tileLayer('https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}');
+		var opentopomap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
+		var cartocdn = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png');
+
+		var mapaBaseOscuro =  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png').addTo(mapa1);
+
+		//crear marcador (L.marker)
+		var plaza_pagador = L.marker([-17.951415, -67.110858], { title: "Plaza Sebastián Pagador" }).bindPopup("<b>Esta es la Plaza Sebastián Pagador</b>").addTo(mapa1);
+
+
+		function getColor(d) {
+			return d > 1000000 ? '#800026' :
+				d > 500000 ? '#BD0026' :
+					d > 200000 ? '#E31A1C' :
+						d > 100000 ? '#FC4E2A' :
+							d > 50000 ? '#FD8D3C' :
+								d > 20000 ? '#FEB24C' :
+									d > 10000 ? '#FED976' :
+										'#FFEDA0';
+		}
+		function styleMunicipio(feature) {
+			return {
+				//fillColor: 'green',
+				fillColor: getColor(feature.properties.Pobla2019),
+				weight: 2,
+				opacity: 1,
+				color: 'white',
+				dashArray: '3',
+				fillOpacity: 0.7
+			};
+		}
+
+		var mapa_municipios = L.geoJSON(municipios2, {
+			style: styleMunicipio,
+			onEachFeature: function (feature, layer) {
+				const popupContent =
+					'<b>Provicia: ' +
+					feature.properties.NOM_PROV +
+					'</b> <br> Municipio: ' +
+					feature.properties.NOM_MUN;
+				layer.bindPopup(popupContent);
+			}
+		}
+		).addTo(mapa1);
+
+
+		var mapa_lagos = L.geoJSON(lagos2, {
+			onEachFeature: function (feature, layer) {
+				const popupContent =
+					'<b>Tipo: ' +
+					feature.properties.TIPO +
+					'</b> <br> Nombre: ' +
+					feature.properties.NOMBRE;
+				layer.bindPopup(popupContent);
+			}
+		}
+		).addTo(mapa1);
+
+		var mapa_aeropuetos = L.geoJSON(aeropuertos2, {
+			onEachFeature: function (feature, layer) {
+				const popupContent =
+					'<b>Codigo: ' +
+					feature.properties.CODIGO +
+					'</b> <br> Aeropuerto: ' +
+					feature.properties.AEROPUERTO;
+				layer.bindPopup(popupContent);
+			}
+		}
+		).addTo(mapa1);
+
+
+		var mapasBase = {
+			"OpenStreet": osm,
+			"Google": google,
+			"Open": opentopomap,
+			"Carto": cartocdn,
+			"traasdasd": mapaBaseOscuro
+		};
+
+		var mapas = {
+			"Plaza Sebastian Pagador": plaza_pagador,
+			"Municipios": mapa_municipios,
+			"Lagos": mapa_lagos,
+			"Aeropuertos": mapa_aeropuetos
+		};
+
+		//CONTROL DE LOS MAPAS BASE Y CAPAS DE NUESTRO MAPA	
+		L.control.layers(mapasBase, mapas, {
+			position: 'topright', // 'topleft', 'bottomleft', 'bottomright'
+			collapsed: false // true
+		}).addTo(mapa1);
+
+	</script>
+</body>
+
+</html>

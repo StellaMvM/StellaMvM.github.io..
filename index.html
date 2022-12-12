@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="style.css">
+	<title>PrimerParcial</title>
+
+	<link rel="stylesheet" href="css/leaflet.css" />
+	<script src="js/leaflet.js"></script>
+
+	<script src="data/aeropuertos.js "></script>
+	<script src="data/aeropuertos2.js "></script>
+	<script src="data/lagos.js "></script>
+	<script src="data/lagos2.js "></script>
+	<script src="data/municipios.js "></script>
+	<script src="data/municipios2.js "></script>
+
+	<script src="data/wgs84plano_FNI1.js"></script>
+</head>
+
+<body>
+	<header>
+		<div class="logo">
+			<img src="csharp.png" alt="una imagen">
+		</div>
+		<nav>
+			<ul class="menu">
+				<li class="menu-item"><a onclick="boton1()" class="link-item">AULAS BASICAS</a></li>
+				<li class="menu-item"><a onclick="boton2()" class="link-item">LABORATORIOS</a></li>
+				<li class="menu-item"><a onclick="boton3()" class="link-item">CARRERAS FNI</a></li>
+				<li class="menu-item"><a onclick="boton4()" class="link-item">BLOQUE ADMIN</a></li>
+				<li class="menu-item"><a onclick="boton0()" class="link-item">RUTAS FNI</a></li>
+				<li class="menu-item"><a onclick="boton8()" class="link-item">pagina1</a></li>
+			</ul>
+		</nav>
+	</header>
+	<main>
+		
+		<h1>Buscador Municipios</h1>
+		<input type="text" id="txtBuscar" onkeyup="funcionPrueba()">
+
+		<div id="mapa"></div>
+		<!-- Codigo de javascript embebido -->
+		<script>
+			//inicializar mapa en cordenadas en ul div mapa
+			var mapa1 = L.map('mapa', {
+				center: [-16.290154, -63.588653],
+				zoom: 6
+			});
+			//fondo para el mapa (L.tileLayer)
+			var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+			var google = L.tileLayer('https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}');
+			var opentopomap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
+			var cartocdn = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png');
+
+			var mapaBaseOscuro = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png').addTo(mapa1);
+
+			//crear marcador (L.marker)
+			var plaza_pagador = L.marker([-17.951415, -67.110858], { title: "Plaza Sebastián Pagador" }).bindPopup("<b>Esta es la Plaza Sebastián Pagador</b>");//.addTo(mapa1);
+
+
+			function getColor(d) {
+				return d > 1000000 ? '#800026' :
+					d > 500000 ? '#BD0026' :
+						d > 200000 ? '#E31A1C' :
+							d > 100000 ? '#FC4E2A' :
+								d > 50000 ? '#FD8D3C' :
+									d > 20000 ? '#FEB24C' :
+										d > 10000 ? '#FED976' :
+											'#FFEDA0';
+			}
+			function styleMunicipio(feature) {
+				return {
+					//fillColor: 'green',
+					fillColor: getColor(feature.properties.Pobla2019),
+					weight: 2,
+					opacity: 1,
+					color: 'white',
+					//dashArray: '3',
+					fillOpacity: 0.7
+				};
+			}
+
+			var mapa_municipios = L.geoJSON(municipios2, {
+				style: styleMunicipio,
+				onEachFeature: function (feature, layer) {
+					const popupContent =
+						'<b>Provicia: ' +
+						feature.properties.NOM_PROV +
+						'</b> <br> Municipio: ' +
+						feature.properties.NOM_MUN;
+					layer.bindPopup(popupContent);
+				}
+			}
+			);//.addTo(mapa1);
+
+
+			var mapa_lagos = L.geoJSON(lagos2, {
+				onEachFeature: function (feature, layer) {
+					const popupContent =
+						'<b>Tipo: ' +
+						feature.properties.TIPO +
+						'</b> <br> Nombre: ' +
+						feature.properties.NOMBRE;
+					layer.bindPopup(popupContent);
+				}
+			}
+			);//.addTo(mapa1);
+
+			var mapa_aeropuetos = L.geoJSON(aeropuertos2, {
+				onEachFeature: function (feature, layer) {
+					const popupContent =
+						'<b>Codigo: ' +
+						feature.properties.CODIGO +
+						'</b> <br> Aeropuerto: ' +
+						feature.properties.AEROPUERTO;
+					layer.bindPopup(popupContent);
+				}
+			}
+			);//.addTo(mapa1);fni
+
+			var mapa_fni = L.geoJSON(fni
+			
+			);//.addTo(mapa1);
+
+
+			var mapasBase = {
+				"OpenStreet": osm,
+				"Google": google,
+				"Open": opentopomap,
+				"Carto": cartocdn,
+				"traasdasd": mapaBaseOscuro
+			};
+
+			var mapas = {
+				"Plaza Sebastian Pagador": plaza_pagador,
+				"Municipios": mapa_municipios,
+				"Lagos": mapa_lagos,
+				"Aeropuertos": mapa_aeropuetos,
+				"asdasd": mapa_fni
+			};
+
+			//CONTROL DE LOS MAPAS BASE Y CAPAS DE NUESTRO MAPA	
+			L.control.layers(mapasBase, mapas, {
+				position: 'topright', // 'topleft', 'bottomleft', 'bottomright'
+				collapsed: false // true
+			}).addTo(mapa1);
+
+		</script>
+
+		<script>
+			function boton0(){
+				console.log("hola");
+				google.remove();
+				opentopomap.remove();
+				cartocdn.remove();
+				mapaBaseOscuro.remove();
+				osm.addTo(mapa1);
+			}
+
+			function boton1(){
+				//console.log("hola");
+				plaza_pagador.remove();
+				mapa_municipios.remove();
+				mapa_lagos.remove();
+				mapa_aeropuetos.remove();
+				mapa_municipios.addTo(mapa1);
+
+				mapa1.flyTo([-16.290154, -63.588653],6);
+			}
+			function boton2(){
+				//console.log("hola");
+				plaza_pagador.remove();
+				mapa_municipios.remove();
+				mapa_lagos.remove();
+				mapa_aeropuetos.remove();
+				plaza_pagador.addTo(mapa1);
+
+				mapa1.flyTo([-17.951415, -67.110858],15);
+
+					//center: [-16.290154, -63.588653],
+					//zoom: 6
+				
+			}
+			function boton3(){
+				//console.log("hola");
+				plaza_pagador.remove();
+				mapa_municipios.remove();
+				mapa_lagos.remove();
+				mapa_aeropuetos.remove();
+				mapa_lagos.addTo(mapa1);
+			}
+			function boton4(){
+				//console.log("hola");
+				plaza_pagador.remove();
+				mapa_municipios.remove();
+				mapa_lagos.remove();
+				mapa_aeropuetos.remove();
+				mapa_aeropuetos.addTo(mapa1);
+			}
+
+			function boton8(){
+				//console.log("hola");
+				plaza_pagador.remove();
+				mapa_municipios.remove();
+				mapa_lagos.remove();
+				mapa_aeropuetos.remove();
+				mapa_fni.addTo(mapa1);
+				mapa1.flyTo([-158.623412538417938, -85.472960840178814],15);
+			}
+		</script>
+
+		<script>			
+			function funcionPrueba(){
+				var e = document.getElementById('txtBuscar');
+
+				mapa_municipios.remove();
+
+				mapa_municipios = L.geoJSON(municipios2, {
+					style: styleMunicipio,
+					onEachFeature: function (feature, layer) {
+						const popupContent =
+							'<b>Provicia: ' +
+							feature.properties.NOM_PROV +
+							'</b> <br> Municipio: ' +
+							feature.properties.NOM_MUN;
+						layer.bindPopup(popupContent);
+					},
+					filter: function filtro(feature){
+						if(feature.properties.NOM_DEP.toLowerCase().includes(e.value.toLowerCase()) ||
+						feature.properties.NOM_PROV.includes(e.value) ||
+						feature.properties.NOM_MUN.includes(e.value))
+						{
+							return true;
+						}
+					}
+				}).addTo(mapa1);
+				//console.log(e);
+				console.log(e.value);
+			}
+		</script>
+
+
+
+		<div class="imagen-principal">
+			<img src="222.jpg" alt="imagen-principal">
+		</div>
+		<section>
+			<article>
+				<div class="titulo-producto">Producto1</div>
+				<div class="imagen-producto">
+					<img src="js.png" alt="imagen-producto">
+				</div>
+				<div class="descripcion-producto">Precio 20$</div>
+				<button>Comprar</button>
+			</article>
+			<article>
+				<div class="titulo-producto">Producto1</div>
+				<div class="imagen-producto">
+					<img src="php.png" alt="imagen-producto">
+				</div>
+				<div class="descripcion-producto">Precio 20$</div>
+				<button>Comprar</button>
+			</article>
+			<article>
+				<div class="titulo-producto">Producto1</div>
+				<div class="imagen-producto">
+					<img src="python.png" alt="imagen-producto">
+				</div>
+				<div class="descripcion-producto">Precio 20$</div>
+				<button>Comprar</button>
+			</article>
+			<article>
+				<div class="titulo-producto">Producto1</div>
+				<div class="imagen-producto">
+					<img src="ruby.png" alt="imagen-producto">
+				</div>
+				<div class="descripcion-producto">Precio 20$</div>
+				<button>Comprar</button>
+			</article>
+		</section>
+	</main>
+	<footer>
+		Pie de pagina
+	</footer>
+</body>
+
+</html>
